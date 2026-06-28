@@ -362,7 +362,7 @@
 // 🔧 Set your real email here
 const OWNER_EMAIL = 'manojmore0214@email.com';
 // Resume is hosted on GitHub — direct raw download URL
-const RESUME_FILE = 'https://raw.githubusercontent.com/Itachi4500/Portfolio-Website/main/Resume/Manoj.docx';
+const RESUME_FILE = 'https://github.com/Itachi4500/Portfolio-Website/tree/main/Resume';
 const RESUME_FILENAME = 'Manoj_Krishna_More_Resume.docx'; // filename shown to downloader
 
 function openResumeModal() {
