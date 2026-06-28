@@ -361,10 +361,9 @@
 
 // 🔧 Set your real email here
 const OWNER_EMAIL = 'manojmore0214@email.com';
-// 🔧 Resume PDF lives inside the Portfolio/Resume/ folder
-//    Drop your PDF into:  d:\Clg\Imp\Portfolio\Resume\
-//    Then update the filename below if it differs.
-const RESUME_FILE = 'Resume/Manoj.docx';
+// Resume is hosted on GitHub — direct raw download URL
+const RESUME_FILE = 'https://raw.githubusercontent.com/Itachi4500/Portfolio-Website/main/Resume/Manoj.docx';
+const RESUME_FILENAME = 'Manoj_Krishna_More_Resume.docx'; // filename shown to downloader
 
 function openResumeModal() {
   const modal = document.getElementById('resume-modal');
@@ -448,14 +447,27 @@ function submitResumeModal() {
       <path d="M21 12c0-4.97-4.03-9-9-9"/>
     </svg> Processing…`;
 
-  // --- 1. Trigger Resume Download ---
+  // --- 1. Trigger Resume Download from GitHub ---
   setTimeout(() => {
-    const link = document.createElement('a');
-    link.href = RESUME_FILE;
-    link.download = RESUME_FILE;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    fetch(RESUME_FILE)
+      .then(res => {
+        if (!res.ok) throw new Error('Download failed');
+        return res.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = RESUME_FILENAME;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      })
+      .catch(() => {
+        // Fallback: open directly in new tab
+        window.open(RESUME_FILE, '_blank');
+      });
   }, 400);
 
   // --- 2. Send notification email to Manoj ---
