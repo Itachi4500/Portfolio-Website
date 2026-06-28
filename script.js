@@ -353,3 +353,205 @@
   statNumbers.forEach(el => statsObserver.observe(el));
 
 })();
+
+/* ============================================================
+   RESUME DOWNLOAD MODAL — Global Functions
+   (global scope so onclick="..." in HTML can reach them)
+   ============================================================ */
+
+// 🔧 Set your real email here
+const OWNER_EMAIL = 'manojmore0214@email.com';
+// 🔧 Resume PDF lives inside the Portfolio/Resume/ folder
+//    Drop your PDF into:  d:\Clg\Imp\Portfolio\Resume\
+//    Then update the filename below if it differs.
+const RESUME_FILE = 'Resume/Manoj.docx';
+
+function openResumeModal() {
+  const modal = document.getElementById('resume-modal');
+  if (!modal) return;
+
+  // Reset to form view in case success was shown earlier
+  _rmodalShowForm();
+
+  // Clear previous values
+  ['rm-name','rm-email','rm-company'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  const purpose = document.getElementById('rm-purpose');
+  if (purpose) purpose.selectedIndex = 0;
+
+  const err = document.getElementById('rm-error');
+  if (err) err.style.display = 'none';
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // Focus first field
+  setTimeout(() => {
+    const nameInput = document.getElementById('rm-name');
+    if (nameInput) nameInput.focus();
+  }, 350);
+}
+
+function closeResumeModal() {
+  const modal = document.getElementById('resume-modal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function submitResumeModal() {
+  const nameEl    = document.getElementById('rm-name');
+  const emailEl   = document.getElementById('rm-email');
+  const companyEl = document.getElementById('rm-company');
+  const purposeEl = document.getElementById('rm-purpose');
+  const errEl     = document.getElementById('rm-error');
+  const submitBtn = document.getElementById('rm-submit-btn');
+
+  const name    = nameEl.value.trim();
+  const email   = emailEl.value.trim();
+  const company = companyEl ? companyEl.value.trim() : '';
+  const purpose = purposeEl ? purposeEl.value : '';
+
+  // --- Validation ---
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!name || !email) {
+    errEl.textContent = '⚠️ Please enter your name and a valid email.';
+    errEl.style.display = 'block';
+    [nameEl, emailEl].forEach(el => {
+      if (!el.value.trim()) {
+        el.classList.add('shake');
+        setTimeout(() => el.classList.remove('shake'), 450);
+      }
+    });
+    return;
+  }
+
+  if (!emailRegex.test(email)) {
+    errEl.textContent = '⚠️ That email doesn\'t look right. Please check it.';
+    errEl.style.display = 'block';
+    emailEl.classList.add('shake');
+    setTimeout(() => emailEl.classList.remove('shake'), 450);
+    return;
+  }
+
+  errEl.style.display = 'none';
+
+  // --- Loading state ---
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = `
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      style="animation:spin 0.7s linear infinite">
+      <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25"/>
+      <path d="M21 12c0-4.97-4.03-9-9-9"/>
+    </svg> Processing…`;
+
+  // --- 1. Trigger Resume Download ---
+  setTimeout(() => {
+    const link = document.createElement('a');
+    link.href = RESUME_FILE;
+    link.download = RESUME_FILE;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, 400);
+
+  // --- 2. Send notification email to Manoj ---
+  const now = new Date().toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'full',
+    timeStyle: 'short'
+  });
+
+  const notifBody = [
+    `👋 Hi Manoj!`,
+    ``,
+    `Someone just downloaded your resume from your portfolio website.`,
+    ``,
+    `📋 Visitor Details`,
+    `──────────────────`,
+    `Name        : ${name}`,
+    `Email       : ${email}`,
+    `Company     : ${company || '(not provided)'}`,
+    `Purpose     : ${purpose || '(not provided)'}`,
+    ``,
+    `📅 Date & Time : ${now} (IST)`,
+    ``,
+    `──────────────────`,
+    `This notification was sent automatically by your Portfolio Website.`,
+    ``,
+    `You can reply to this email to reach ${name} at: ${email}`,
+  ].join('\n');
+
+  const mailtoURL =
+    `mailto:${OWNER_EMAIL}` +
+    `?subject=${encodeURIComponent(`🔔 Resume Downloaded by ${name} — Portfolio Alert`)}` +
+    `&body=${encodeURIComponent(notifBody)}`;
+
+  // Open mail client after short delay (so download fires first)
+  setTimeout(() => {
+    window.location.href = mailtoURL;
+  }, 700);
+
+  // --- 3. Show success state ---
+  setTimeout(() => {
+    _rmodalShowSuccess();
+    // Auto-close after 4 s
+    setTimeout(() => closeResumeModal(), 4500);
+  }, 1200);
+}
+
+/* Helpers */
+function _rmodalShowForm() {
+  const fields   = document.querySelector('.rmodal-fields');
+  const actions  = document.querySelector('.rmodal-actions');
+  const subtitle = document.querySelector('.rmodal-subtitle');
+  const success  = document.getElementById('rm-success');
+  const submitBtn = document.getElementById('rm-submit-btn');
+
+  if (fields)   fields.style.display   = 'flex';
+  if (actions)  actions.style.display  = 'flex';
+  if (subtitle) subtitle.style.display = 'block';
+  if (success)  success.style.display  = 'none';
+  if (submitBtn) {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg> Download Now`;
+  }
+}
+
+function _rmodalShowSuccess() {
+  const fields   = document.querySelector('.rmodal-fields');
+  const actions  = document.querySelector('.rmodal-actions');
+  const subtitle = document.querySelector('.rmodal-subtitle');
+  const errEl    = document.getElementById('rm-error');
+  const success  = document.getElementById('rm-success');
+
+  if (fields)   fields.style.display   = 'none';
+  if (actions)  actions.style.display  = 'none';
+  if (subtitle) subtitle.style.display = 'none';
+  if (errEl)    errEl.style.display    = 'none';
+  if (success)  success.style.display  = 'block';
+}
+
+// Close modal when clicking the dark backdrop
+document.addEventListener('DOMContentLoaded', () => {
+  const backdrop = document.getElementById('resume-modal');
+  if (backdrop) {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) closeResumeModal();
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeResumeModal();
+  });
+});
+
