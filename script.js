@@ -189,17 +189,28 @@
   skillFills.forEach(fill => skillObserver.observe(fill));
 
   // ============================================================
-  // 6. CONTACT FORM — MOCK SUBMIT
+  // 6. CONTACT FORM — REAL mailto: DELIVERY
   // ============================================================
+
+  // 🔧 UPDATE THIS with your actual email address
+  const YOUR_EMAIL = 'manojmore0214@gmail.com';
+
   const submitBtn = document.getElementById('contact-submit');
   const formFeedback = document.getElementById('form-feedback');
 
   if (submitBtn) {
     submitBtn.addEventListener('click', () => {
-      const name = document.getElementById('contact-name').value.trim();
-      const email = document.getElementById('contact-email-input').value.trim();
-      const message = document.getElementById('contact-message').value.trim();
+      const nameEl    = document.getElementById('contact-name');
+      const emailEl   = document.getElementById('contact-email-input');
+      const subjectEl = document.getElementById('contact-subject');
+      const msgEl     = document.getElementById('contact-message');
 
+      const name    = nameEl.value.trim();
+      const email   = emailEl.value.trim();
+      const subject = subjectEl.value.trim() || 'Portfolio Contact';
+      const message = msgEl.value.trim();
+
+      // Validation
       if (!name || !email || !message) {
         formFeedback.style.color = '#f87171';
         formFeedback.textContent = '⚠️ Please fill in Name, Email, and Message.';
@@ -207,29 +218,67 @@
         return;
       }
 
-      // Simulate submission
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        formFeedback.style.color = '#f87171';
+        formFeedback.textContent = '⚠️ Please enter a valid email address.';
+        formFeedback.style.display = 'block';
+        return;
+      }
+
+      // Build the mailto body
+      const body = [
+        `Name    : ${name}`,
+        `Email   : ${email}`,
+        ``,
+        `Message :`,
+        message,
+        ``,
+        `---`,
+        `Sent via Portfolio Contact Form`,
+      ].join('\n');
+
+      const mailtoURL =
+        `mailto:${YOUR_EMAIL}` +
+        `?subject=${encodeURIComponent(`[Portfolio] ${subject}`)}` +
+        `&body=${encodeURIComponent(body)}`;
+
+      // Show sending state
       submitBtn.disabled = true;
-      submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25"/><path d="M21 12c0-4.97-4.03-9-9-9"/></svg> Sending...`;
-      
+      submitBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          style="animation:spin 0.8s linear infinite">
+          <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" opacity="0.25"/>
+          <path d="M21 12c0-4.97-4.03-9-9-9"/>
+        </svg> Opening Email Client…`;
+
+      // Open the mail client
+      window.location.href = mailtoURL;
+
+      // Show success feedback after a short delay
       setTimeout(() => {
         formFeedback.style.color = '#10b981';
-        formFeedback.textContent = '✅ Message sent! I\'ll be in touch soon.';
+        formFeedback.textContent = '✅ Your email client opened! Send the email to reach Manoj.';
         formFeedback.style.display = 'block';
-        submitBtn.innerHTML = `✅ Message Sent!`;
+        submitBtn.innerHTML = `✅ Email Client Opened`;
         submitBtn.style.background = 'linear-gradient(135deg,#10b981,#34d399)';
-        
-        // Reset after 4s
+
+        // Reset form after 5 s
         setTimeout(() => {
-          document.getElementById('contact-name').value = '';
-          document.getElementById('contact-email-input').value = '';
-          document.getElementById('contact-subject').value = '';
-          document.getElementById('contact-message').value = '';
+          nameEl.value = '';
+          emailEl.value = '';
+          subjectEl.value = '';
+          msgEl.value = '';
           formFeedback.style.display = 'none';
           submitBtn.disabled = false;
-          submitBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Message`;
+          submitBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg> Send Message`;
           submitBtn.style.background = '';
-        }, 4000);
-      }, 1500);
+        }, 5000);
+      }, 800);
     });
   }
 
