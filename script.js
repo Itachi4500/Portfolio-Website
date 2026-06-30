@@ -493,9 +493,9 @@ setTimeout(() => {
     `&body=${encodeURIComponent(notifBody)}`;
 
   // Open mail client after short delay (so download fires first)
-  setTimeout(() => {
-    window.location.href = mailtoURL;
-  }, 700);
+setTimeout(() => {
+  window.location.href = mailtoURL;
+}, 2500);
 
   // --- 3. Show success state ---
   setTimeout(() => {
