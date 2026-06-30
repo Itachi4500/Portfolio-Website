@@ -360,10 +360,11 @@
    ============================================================ */
 
 // 🔧 Set your real email here
-const OWNER_EMAIL = 'manojmore0214@email.com';
-// Resume is hosted on GitHub — direct raw download URL
-const RESUME_FILE = '/Portfolio-Website/resume.pdf';
-const RESUME_FILENAME = 'Manoj_Ruseme.pdf'; // filename shown to downloader
+const OWNER_EMAIL = 'manojmore0214@gmail.com';
+// Direct download URL (change the filename if your resume is PDF)
+const RESUME_FILE =
+  'https://raw.githubusercontent.com/itachi4500/Portfolio-Website/main/Resume/Manoj.pdf';
+const RESUME_FILENAME = 'Manoj_More_Resume.pdf';
 
 function openResumeModal() {
   const modal = document.getElementById('resume-modal');
